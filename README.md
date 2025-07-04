@@ -1,8 +1,26 @@
-# Jboard (FSD-Project)
+# jboard (fsd-project)
 
-This template provides a minimal setup to get React working in Vite.
+> download and install node.js
+> then install bunjs 
 
+use below script for windows
+
+```powershell
+npm install -g bun (only after installing nodejs, don't use nodejs-lts)
+```
+
+
+for linux:
 ```bash
+$ curl -fssl https://bun.sh/install | bash
+```
+
+before running the application:
+```sh
 bun install
+```
+to run this application.
+
+```sh
 bun run dev
 ```
