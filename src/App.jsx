@@ -1,13 +1,9 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminLogin from "./pages/AdminLogin";
-import AdminRegister from "./pages/AdminRegister";
+import { AdminRegister, AdminLogin, AdminDashboard } from "./pages/admin";
 import Home from "./pages/Home";
 import JobPost from "./pages/JobPost";
-import StudentDashboard from "./pages/StudentDashboard";
-import StudentLogin from "./pages/StudentLogin";
-import StudentRegister from "./pages/StudentRegister";
+import { StudentRegister, StudentLogin, StudentDashboard } from "./pages/students";
 import ViewApplicants from "./pages/ViewApplicants";
 
 const App = () => {
