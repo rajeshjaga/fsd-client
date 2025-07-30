@@ -1,36 +1,22 @@
-import axios from "axios";
 import React, { useState } from "react";
+import axios from "axios";
 
-const JobPost = (jobData) => {
+const JobPost = () => {
     const [job, setJob] = useState({
         companyName: "",
         title: "",
         jobDescription: "",
-        skillsRequired: [], // This should be an array for multiselect or comma-separated input
+        skillsRequired: [],
         minMarks: {
             tenth: "",
             twelfth: "",
             ug: "",
-            pg: "", // optional
+            pg: "",
         },
         status: "open",
         applicationDeadline: ""
     });
 
-
-
-    const handlePost = async () => {
-        try {
-            await axios.post("http://localhost:5000/api/jobs", jobData, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-            alert("Job posted");
-        } catch (err) {
-            alert(err);
-        }
-    };
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name in job.minMarks) {
@@ -49,147 +35,207 @@ const JobPost = (jobData) => {
             skillsRequired: e.target.value.split(",").map(s => s.trim()),
         });
     };
+
+    const handlePost = async () => {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        try {
+            console.log(token)
+            console.log(job)
+            await axios.post("http://localhost:5000/api/jobs", job, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            alert("Job posted");
+        } catch (err) {
+            alert(err);
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(job);
+        handlePost()
     };
+
     return (
-        <div className="w-max">
-            <h2>Post a Job</h2>
-            <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-8 bg-white rounded-xl shadow-md space-y-6">
-                <h2 className="text-2xl font-bold mb-4 text-gray-700">Post a New Job</h2>
-
-                <div>
-                    <label className="block mb-1 font-medium text-gray-600">Company Name</label>
-                    <input
-                        type="text"
-                        name="companyName"
-                        value={job.companyName}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
+            <div className="max-w-2xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Post a New Job</h1>
+                    <p className="text-gray-600">Fill in the details below to create a job posting</p>
                 </div>
 
-                <div>
-                    <label className="block mb-1 font-medium text-gray-600">Title</label>
-                    <input
-                        type="text"
-                        name="title"
-                        value={job.title}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-1 font-medium text-gray-600">Job Description</label>
-                    <textarea
-                        name="jobDescription"
-                        value={job.jobDescription}
-                        onChange={handleChange}
-                        required
-                        rows={4}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-1 font-medium text-gray-600">Skills <span className="text-sm text-gray-400">(comma-separated)</span></label>
-                    <input
-                        type="text"
-                        name="skillsRequired"
-                        value={job.skillsRequired.join(", ")}
-                        onChange={handleSkillsChange}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <fieldset className="border p-4 rounded-lg">
-                    <legend className="text-gray-600 font-semibold">Minimum Marks (%)</legend>
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                        <div>
-                            <label className="block mb-1 text-xs text-gray-500">10th</label>
+                <div className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
+                    {/* Company and Title Section */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                Company Name <span className="text-red-500">*</span>
+                            </label>
                             <input
-                                type="number"
-                                name="tenth"
-                                value={job.minMarks.tenth}
+                                type="text"
+                                name="companyName"
+                                value={job.companyName}
                                 onChange={handleChange}
-                                required
-                                className="w-full px-2 py-1 border rounded"
+                                placeholder="Enter company name"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                             />
                         </div>
-                        <div>
-                            <label className="block mb-1 text-xs text-gray-500">12th</label>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                Job Title <span className="text-red-500">*</span>
+                            </label>
                             <input
-                                type="number"
-                                name="twelfth"
-                                value={job.minMarks.twelfth}
+                                type="text"
+                                name="title"
+                                value={job.title}
                                 onChange={handleChange}
-                                required
-                                className="w-full px-2 py-1 border rounded"
-                            />
-                        </div>
-                        <div>
-                            <label className="block mb-1 text-xs text-gray-500">UG</label>
-                            <input
-                                type="number"
-                                name="ug"
-                                value={job.minMarks.ug}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-2 py-1 border rounded"
-                            />
-                        </div>
-                        <div>
-                            <label className="block mb-1 text-xs text-gray-500">PG (optional)</label>
-                            <input
-                                type="number"
-                                name="pg"
-                                value={job.minMarks.pg}
-                                onChange={handleChange}
-                                className="w-full px-2 py-1 border rounded"
+                                placeholder="e.g. Software Engineer"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                             />
                         </div>
                     </div>
-                </fieldset>
 
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="block mb-1 font-medium text-gray-600">Status</label>
-                        <select
-                            name="status"
-                            value={job.status}
+                    {/* Job Description */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">
+                            Job Description <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                            name="jobDescription"
+                            value={job.jobDescription}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                        </select>
-                    </div>
-                    <div className="flex-1">
-                        <label className="block mb-1 font-medium text-gray-600">Application Deadline</label>
-                        <input
-                            type="date"
-                            name="applicationDeadline"
-                            value={job.applicationDeadline}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows={5}
+                            placeholder="Describe the role, responsibilities, and requirements..."
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
                         />
                     </div>
-                </div>
 
-                <button
-                    type="submit"
-                    className="w-full py-2 mt-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
-                >
-                    Post Job
-                </button>
-            </form>
-            <button className="px-4 py-2 bg-green-300 rounded hover:bg-green-500" onClick={handlePost}>Submit</button>
+                    {/* Skills Required */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">
+                            Required Skills <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="skillsRequired"
+                            value={job.skillsRequired.join(", ")}
+                            onChange={handleSkillsChange}
+                            placeholder="React, Node.js, MongoDB, etc."
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Separate multiple skills with commas</p>
+                    </div>
+
+                    {/* Minimum Marks Section */}
+                    <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Academic Requirements</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-600">
+                                    10th Grade (%) <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    name="tenth"
+                                    value={job.minMarks.tenth}
+                                    onChange={handleChange}
+                                    min="0"
+                                    max="100"
+                                    placeholder="75"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-600">
+                                    12th Grade (%) <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    name="twelfth"
+                                    value={job.minMarks.twelfth}
+                                    onChange={handleChange}
+                                    min="0"
+                                    max="100"
+                                    placeholder="75"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-600">
+                                    UG (%) <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    name="ug"
+                                    value={job.minMarks.ug}
+                                    onChange={handleChange}
+                                    min="0"
+                                    max="100"
+                                    placeholder="70"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-600">
+                                    PG (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    name="pg"
+                                    value={job.minMarks.pg}
+                                    onChange={handleChange}
+                                    min="0"
+                                    max="100"
+                                    placeholder="Optional"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Status and Deadline */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Job Status</label>
+                            <select
+                                name="status"
+                                value={job.status}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 bg-white"
+                            >
+                                <option value="open">🟢 Open</option>
+                                <option value="closed">🔴 Closed</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                Application Deadline <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                name="applicationDeadline"
+                                value={job.applicationDeadline}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="pt-6">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        >
+                            🚀 Post Job Opening
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
