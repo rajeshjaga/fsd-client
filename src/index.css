@@ -1,10 +1,31 @@
 @import "tailwindcss";
 
-input{
-@apply border rounded px-3 py-2 w-full mb-3;
-}
+/* input{ */
+/* @apply border rounded px-3 py-2 w-full mb-3; */
+/* } */
 
 body{
-    background: #1e1e1e;
-    color: #fcfcfc;
+/*    background: #1e1e1e;
+    color: #fcfcfc;*/
+}
+
+h1{
+    font-size: 2rem;
+    font-weight: 800;
+}
+h2{
+    font-size: 1.5em;
+    font-weight: 700;
+}
+h3{
+    font-size: 1.3em;
+    font-weight: 600;
+}
+h4{
+    font-size: 1em;
+    font-weight: 600;
+}
+p,a,li,span{
+    font-size: 1rem;
+    font-weight: normal;
 }

@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import JobPost from "./pages/JobPost";
 import { StudentRegister, StudentLogin, StudentDashboard } from "./pages/students";
 import ViewApplicants from "./pages/ViewApplicants";
+import NotFound from "./utilities/notfound";
 
 const App = () => {
     return (
@@ -15,13 +16,14 @@ const App = () => {
                 <Route path="/students/register" element={<StudentRegister />} />
                 <Route path="/students/dashboard" element={<StudentDashboard />} />
                 <Route path="/admin" element={<AdminLogin />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/register" element={<AdminRegister />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/post-job" element={<JobPost />} />
-                <Route
-                    path="/admin/applicants/:jobId"
-                    element={<ViewApplicants />}
-                />
+                <Route path="/admin/applicants/:jobId" element={<ViewApplicants />} />
+                <Route path="/admin/*" element={<NotFound />} />
+                <Route path="/students/*" element={<NotFound />} />
+                <Route path="/*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>
     );
