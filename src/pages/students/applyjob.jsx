@@ -2,21 +2,74 @@ import { useState } from 'react';
 
 const ApplyJob = ({ student, job }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const studentMarks = student.education;
-    const jobMinMarks = job.minMarks;
 
-    function isEligible(studentMarks, jobMinMarks) {
-        console.log(studentMarks)
-        console.log(jobMinMarks)
-        return (
-            studentMarks.tenth >= jobMinMarks.tenth &&
-            studentMarks.twelfth >= jobMinMarks.twelfth &&
-            studentMarks.graduate >= jobMinMarks.ug &&
-            (jobMinMarks.pg ? studentMarks.pg >= jobMinMarks.pg : true)
-        );
+    // The student object is passed directly, no need for .data.student
+    const data = student;
+    const jobMinMarks = job?.minMarks;
+
+    console.log('Full student object:', student);
+    console.log('Job min marks:', jobMinMarks);
+
+    // Extract student marks safely from the education object
+    const studentMarks = data?.education ? {
+        tenth: data.education.tenth?.percent || 0,
+        twelfth: data.education.twelfth?.percent || 0,
+        ug: data.education.graduate?.bachelors?.percent || 0,
+        pg: data.education.graduate?.masters?.percent || 0
+    } : {
+        tenth: 0,
+        twelfth: 0,
+        ug: 0,
+        pg: 0
+    };
+
+    console.log('Education object:', data?.education);
+    console.log('Extracted student marks:', studentMarks);
+
+    // Safe job requirements with defaults
+    const safeJobMinMarks = jobMinMarks ? {
+        tenth: jobMinMarks.tenth || 0,
+        twelfth: jobMinMarks.twelfth || 0,
+        ug: jobMinMarks.ug || 0,
+        pg: jobMinMarks.pg || 0
+    } : {
+        tenth: 0,
+        twelfth: 0,
+        ug: 0,
+        pg: 0
+    };
+
+    function isEligible(studentData, jobMinMarks) {
+        // Check if required data exists
+        if (!studentData || !studentData.education || !jobMinMarks) {
+            return false;
+        }
+
+        const education = studentData.education;
+        console.log('Student education:', education);
+        console.log('Job requirements:', jobMinMarks);
+
+        // Extract marks from the nested education structure
+        const studentMarks = {
+            tenth: education.tenth?.percent || 0,
+            twelfth: education.twelfth?.percent || 0,
+            graduate: education.graduate?.bachelors?.percent || 0,
+            pg: education.graduate?.masters?.percent || 0
+        };
+
+        console.log('Extracted student marks:', studentMarks);
+
+        // Check eligibility
+        const tenthEligible = studentMarks.tenth >= jobMinMarks.tenth;
+        const twelfthEligible = studentMarks.twelfth >= jobMinMarks.twelfth;
+        const ugEligible = studentMarks.graduate >= jobMinMarks.ug;
+        const pgEligible = jobMinMarks.pg > 0 ? studentMarks.pg >= jobMinMarks.pg : true;
+
+        return tenthEligible && twelfthEligible && ugEligible && pgEligible;
     }
 
-    const eligible = isEligible(studentMarks, jobMinMarks);
+    // Check if data exists before calling isEligible
+    const eligible = data && jobMinMarks ? isEligible(data, jobMinMarks) : false;
 
     const handleApply = () => {
         if (eligible) {
@@ -24,6 +77,8 @@ const ApplyJob = ({ student, job }) => {
             console.log(`Applied for ${job.title}`);
             alert(`Successfully applied for ${job.title}!`);
             setIsModalOpen(false);
+        } else {
+            alert('You are not eligible for this position based on the minimum marks requirement.');
         }
     };
 
@@ -35,10 +90,10 @@ const ApplyJob = ({ student, job }) => {
                 onClick={() => setIsModalOpen(true)}
             >
                 <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{job.title}</h3>
-                    <p className="text-gray-600 text-sm line-clamp-2">{job.description}</p>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{job.title || 'Job Title'}</h3>
+                    <p className="text-gray-600 text-sm line-clamp-2">{job.jobDescription || job.description || 'Job Description'}</p>
                     <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
-                        <span>Company: {job.company || 'N/A'}</span>
+                        <span>Company: {job.companyName || job.company || 'N/A'}</span>
                         <span>•</span>
                         <span>Location: {job.location || 'N/A'}</span>
                         <span>•</span>
@@ -73,8 +128,8 @@ const ApplyJob = ({ student, job }) => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-800">{job.title}</h2>
-                                    <p className="text-gray-600">{job.company || 'Company Name'}</p>
+                                    <h2 className="text-2xl font-bold text-gray-800">{job.title || 'Job Title'}</h2>
+                                    <p className="text-gray-600">{job.companyName || job.company || 'Company Name'}</p>
                                 </div>
                             </div>
 
@@ -98,11 +153,11 @@ const ApplyJob = ({ student, job }) => {
                                     <div className="bg-white/70 rounded-2xl p-4 space-y-3">
                                         <div>
                                             <label className="text-sm font-medium text-gray-600">Position</label>
-                                            <p className="text-gray-800">{job.title}</p>
+                                            <p className="text-gray-800">{job.title || 'N/A'}</p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-gray-600">Company</label>
-                                            <p className="text-gray-800">{job.company || 'N/A'}</p>
+                                            <p className="text-gray-800">{job.companyName || job.company || 'N/A'}</p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-gray-600">Location</label>
@@ -120,6 +175,12 @@ const ApplyJob = ({ student, job }) => {
                                             <label className="text-sm font-medium text-gray-600">Job Type</label>
                                             <p className="text-gray-800">{job.jobType || 'N/A'}</p>
                                         </div>
+                                        {job.applicationDeadline && (
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-600">Application Deadline</label>
+                                                <p className="text-gray-800">{new Date(job.applicationDeadline).toLocaleDateString()}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -130,11 +191,11 @@ const ApplyJob = ({ student, job }) => {
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm font-medium text-gray-600">10th Grade</span>
                                             <div className="flex items-center space-x-2">
-                                                <span className="text-gray-800">{jobMinMarks.tenth}% required</span>
-                                                <span className={`text-sm ${studentMarks.tenth >= jobMinMarks.tenth ? 'text-green-600' : 'text-red-600'}`}>
+                                                <span className="text-gray-800">{safeJobMinMarks.tenth}% required</span>
+                                                <span className={`text-sm ${studentMarks.tenth >= safeJobMinMarks.tenth ? 'text-green-600' : 'text-red-600'}`}>
                                                     (Your: {studentMarks.tenth}%)
                                                 </span>
-                                                {studentMarks.tenth >= jobMinMarks.tenth ? (
+                                                {studentMarks.tenth >= safeJobMinMarks.tenth ? (
                                                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                     </svg>
@@ -148,11 +209,11 @@ const ApplyJob = ({ student, job }) => {
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm font-medium text-gray-600">12th Grade</span>
                                             <div className="flex items-center space-x-2">
-                                                <span className="text-gray-800">{jobMinMarks.twelfth}% required</span>
-                                                <span className={`text-sm ${studentMarks.twelfth >= jobMinMarks.twelfth ? 'text-green-600' : 'text-red-600'}`}>
+                                                <span className="text-gray-800">{safeJobMinMarks.twelfth}% required</span>
+                                                <span className={`text-sm ${studentMarks.twelfth >= safeJobMinMarks.twelfth ? 'text-green-600' : 'text-red-600'}`}>
                                                     (Your: {studentMarks.twelfth}%)
                                                 </span>
-                                                {studentMarks.twelfth >= jobMinMarks.twelfth ? (
+                                                {studentMarks.twelfth >= safeJobMinMarks.twelfth ? (
                                                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                     </svg>
@@ -166,11 +227,11 @@ const ApplyJob = ({ student, job }) => {
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm font-medium text-gray-600">UG/Bachelor's</span>
                                             <div className="flex items-center space-x-2">
-                                                <span className="text-gray-800">{jobMinMarks.ug}% required</span>
-                                                <span className={`text-sm ${studentMarks.ug >= jobMinMarks.ug ? 'text-green-600' : 'text-red-600'}`}>
+                                                <span className="text-gray-800">{safeJobMinMarks.ug}% required</span>
+                                                <span className={`text-sm ${studentMarks.ug >= safeJobMinMarks.ug ? 'text-green-600' : 'text-red-600'}`}>
                                                     (Your: {studentMarks.ug}%)
                                                 </span>
-                                                {studentMarks.ug >= jobMinMarks.ug ? (
+                                                {studentMarks.ug >= safeJobMinMarks.ug ? (
                                                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                     </svg>
@@ -181,15 +242,15 @@ const ApplyJob = ({ student, job }) => {
                                                 )}
                                             </div>
                                         </div>
-                                        {jobMinMarks.pg && (
+                                        {safeJobMinMarks.pg > 0 && (
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm font-medium text-gray-600">PG/Master's</span>
                                                 <div className="flex items-center space-x-2">
-                                                    <span className="text-gray-800">{jobMinMarks.pg}% required</span>
-                                                    <span className={`text-sm ${studentMarks.pg >= jobMinMarks.pg ? 'text-green-600' : 'text-red-600'}`}>
+                                                    <span className="text-gray-800">{safeJobMinMarks.pg}% required</span>
+                                                    <span className={`text-sm ${studentMarks.pg >= safeJobMinMarks.pg ? 'text-green-600' : 'text-red-600'}`}>
                                                         (Your: {studentMarks.pg || 'N/A'}%)
                                                     </span>
-                                                    {studentMarks.pg >= jobMinMarks.pg ? (
+                                                    {studentMarks.pg >= safeJobMinMarks.pg ? (
                                                         <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                         </svg>
@@ -209,17 +270,17 @@ const ApplyJob = ({ student, job }) => {
                             <div className="space-y-4">
                                 <h3 className="text-lg font-semibold text-gray-800">Job Description</h3>
                                 <div className="bg-white/70 rounded-2xl p-4">
-                                    <p className="text-gray-700 leading-relaxed">{job.description}</p>
+                                    <p className="text-gray-700 leading-relaxed">{job.jobDescription || job.description || 'No description available'}</p>
                                 </div>
                             </div>
 
                             {/* Skills Required */}
-                            {job.skills && job.skills.length > 0 && (
+                            {job.skillsRequired && job.skillsRequired.length > 0 && (
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold text-gray-800">Skills Required</h3>
                                     <div className="bg-white/70 rounded-2xl p-4">
                                         <div className="flex flex-wrap gap-2">
-                                            {job.skills.map((skill, index) => (
+                                            {job.skillsRequired.map((skill, index) => (
                                                 <span key={index} className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
                                                     {skill}
                                                 </span>

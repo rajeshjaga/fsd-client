@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
+import { useAdmin } from "../../context/adminContext";
 
 const AdminLogin = () => {
+    const { admin, setAdmin } = useAdmin({});
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
@@ -19,11 +21,14 @@ const AdminLogin = () => {
     const handleLogin = async () => {
         try {
             const res = await API.post("/admin/login", { email, password });
-            console.log(res.data);
+            const token = await res.data.token
+            const admin = await res.data.Admin
+            console.log(res.data.token)
+            setAdmin(res.data)
             if (remember) {
-                localStorage.setItem("token", res.data.token);
+                localStorage.setItem("token", token);
             } else {
-                sessionStorage.setItem("token", res.data.token);
+                sessionStorage.setItem("token", token);
             }
             navigate("/admin/dashboard");
         } catch (err) {
@@ -34,7 +39,7 @@ const AdminLogin = () => {
     useEffect(() => {
         try {
             console.log("CHECKING: if admin is already logged in")
-            if (localStorage.getItem("token")) {
+            if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
                 navigate("/admin/dashboard")
                 console.log("student already logged in")
             }
