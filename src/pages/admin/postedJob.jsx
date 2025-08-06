@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import API from '../../services/api';
 
 const JobsDisplayPage = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Simulate checking for stored token on component mount
-    useEffect(() => {
-        // In real app: const storedToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
-        fetchJobs();
-    }, []);
 
     const fetchJobs = async () => {
         setLoading(true);
@@ -17,11 +13,9 @@ const JobsDisplayPage = () => {
 
         try {
             const token = (localStorage.getItem("token")) || sessionStorage.getItem("token");
-            const response = await fetch('http://localhost:3000/api/admin/jobs', {
-                method: 'GET',
+            const response = await API.get('/admin/jobs', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
                 },
             });
 
@@ -68,6 +62,10 @@ const JobsDisplayPage = () => {
         }
     };
 
+    // Simulate checking for stored token on component mount
+    useEffect(() => {
+        fetchJobs(storedToken);
+    }, []);
     return (
         <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen p-6">
             <div className="max-w-7xl mx-auto">

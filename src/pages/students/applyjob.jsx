@@ -71,14 +71,47 @@ const ApplyJob = ({ student, job }) => {
     // Check if data exists before calling isEligible
     const eligible = data && jobMinMarks ? isEligible(data, jobMinMarks) : false;
 
-    const handleApply = () => {
-        if (eligible) {
-            // Add your apply logic here
-            console.log(`Applied for ${job.title}`);
-            alert(`Successfully applied for ${job.title}!`);
-            setIsModalOpen(false);
-        } else {
+    const handleApply = async () => {
+        if (!eligible) {
             alert('You are not eligible for this position based on the minimum marks requirement.');
+            return;
+        }
+
+        try {
+            // Get the auth token from localStorage or wherever you store it
+            const token = sessionStorage.getItem("token") || localStorage.getItem('token'); // Adjust based on how you store the token
+
+            if (!token) {
+                alert('Please login to apply for jobs.');
+                return;
+            }
+
+            // Make API call to apply for the job
+            const response = await fetch(`http://localhost:5000/api/students/apply/${job._id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Successfully applied for ${job.title}!`);
+                console.log('Application successful:', data);
+                setIsModalOpen(false);
+
+                // Optional: Refresh the page or update the UI to reflect the application
+                // You might want to call a parent function to refresh the job list
+                // or update the local state to show that the job has been applied to
+            } else {
+                alert(data.message || 'Failed to apply for the job. Please try again.');
+                console.error('Application failed:', data);
+            }
+        } catch (error) {
+            console.error('Error applying for job:', error);
+            alert('An error occurred while applying. Please check your connection and try again.');
         }
     };
 

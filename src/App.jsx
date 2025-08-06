@@ -22,7 +22,6 @@ const App = () => {
                     <Route path="/admin/register" element={<AdminRegister />} />
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/posted" element={<JobDisplayPage />} />
-                    {/* <Route path="/admin/post-job" element={<JobPost />} /> */}
                     <Route path="/admin/profile" element={<AdminProfile />} />
                     <Route path="/admin/applicants/:jobId" element={<ViewApplicants />} />
                     <Route path="/admin/*" element={<NotFound />} />

@@ -22,8 +22,6 @@ const AdminLogin = () => {
         try {
             const res = await API.post("/admin/login", { email, password });
             const token = await res.data.token
-            const admin = await res.data.Admin
-            console.log(res.data.token)
             setAdmin(res.data)
             if (remember) {
                 localStorage.setItem("token", token);

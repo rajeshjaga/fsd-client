@@ -22,15 +22,75 @@ const StudentDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             const token = (localStorage.getItem("token")) || sessionStorage.getItem("token");
-            const res = await API.get('/students/dashboard', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            console.log(res);
-            setStudent(res.data.student);
-            setJobs(res.data.newJobs);
-            setAppliedJobs(res.data.student.appliedjobs);
+
+            try {
+                // Get dashboard data (student info and new jobs)
+                const res = await API.get('/students/dashboard', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                console.log('Dashboard response:', res);
+                setStudent(res.data.student);
+                setJobs(res.data.newJobs);
+
+                // Get applied job IDs from student data
+                const appliedJobIds = res.data.student.appliedJobs || [];
+                console.log('Applied job IDs:', appliedJobIds);
+
+                // Fetch all applied jobs in one API call using the bulk endpoint
+                if (appliedJobIds.length > 0) {
+                    try {
+                        const appliedJobsResponse = await API.post('/jobs/bulk', {
+                            jobIds: appliedJobIds
+                        }, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                        });
+
+                        if (appliedJobsResponse.data.success) {
+                            console.log('Applied jobs details:', appliedJobsResponse.data.jobs);
+                            setAppliedJobs(appliedJobsResponse.data.jobs);
+                        } else {
+                            console.error('Failed to fetch applied jobs:', appliedJobsResponse.data.message);
+                            setAppliedJobs([]);
+                        }
+                    } catch (appliedJobsError) {
+                        console.error('Error fetching applied jobs:', appliedJobsError);
+                        setAppliedJobs([]);
+
+                        // Fallback: Try to fetch jobs individually if bulk request fails
+                        console.log('Falling back to individual job fetches...');
+                        const appliedJobsPromises = appliedJobIds.map(async (jobId) => {
+                            try {
+                                const jobResponse = await API.get(`/jobs/${jobId}`, {
+                                    headers: {
+                                        Authorization: `Bearer ${token}`,
+                                    },
+                                });
+                                return jobResponse.data;
+                            } catch (error) {
+                                console.error(`Error fetching job ${jobId}:`, error);
+                                return null;
+                            }
+                        });
+
+                        const appliedJobsDetails = await Promise.all(appliedJobsPromises);
+                        const validAppliedJobs = appliedJobsDetails.filter(job => job !== null);
+                        setAppliedJobs(validAppliedJobs);
+                    }
+                } else {
+                    setAppliedJobs([]);
+                }
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                // Handle error appropriately - maybe show a message to user
+                alert('Error loading dashboard data. Please try again.');
+            }
         };
         fetchData();
     }, []);
@@ -38,7 +98,7 @@ const StudentDashboard = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
             {/* Header with Profile Dropdown */}
-            <div className="bg-white/80 backdrop-blur-sm border-b border-white/50 shadow-lg">
+            <div className="relative z-10 bg-white/80 backdrop-blur-sm border-b border-white/50 shadow-lg">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         {/* Welcome Message */}
@@ -165,9 +225,7 @@ const StudentDashboard = () => {
                             <div className="space-y-4">
                                 {jobs && jobs.length > 0 ? (
                                     jobs.map((item, index) => (
-                                        <div key={index} className="bg-white/70 border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
-                                            <ApplyJob student={student} job={item} />
-                                        </div>
+                                        <ApplyJob key={index} student={student} job={item} />
                                     ))
                                 ) : (
                                     <div className="text-center py-16">
