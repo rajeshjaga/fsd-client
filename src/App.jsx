@@ -1,12 +1,12 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { AdminRegister, JobDisplayPage, AdminLogin, AdminProfile, AdminDashboard } from "./pages/admin";
 import Home from "./pages/Home";
-import JobPost from "./pages/JobPost";
-import { StudentRegister, StudentLogin, StudentDashboard } from "./pages/students";
-import ViewApplicants from "./pages/ViewApplicants";
 import NotFound from "./utilities/notfound";
+//import JobPost from "./pages/JobPost";
+import ViewApplicants from "./pages/ViewApplicants";
 import { AdminProvider } from "./context/adminContext";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { StudentRegister, StudentLogin, StudentDashboard } from "./pages/students";
+import { AdminRegister, JobDisplayPage, AdminLogin, AdminProfile, AdminDashboard } from "./pages/admin";
 
 const App = () => {
     return (

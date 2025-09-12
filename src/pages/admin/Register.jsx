@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import bgimg from '../../assests/pexels-tranmautritam-68761.jpg';
 import { useNavigate } from "react-router-dom";
+import API from "../../services/api";
 
 const AdminRegister = () => {
     const navigate = useNavigate();

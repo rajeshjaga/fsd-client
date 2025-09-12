@@ -277,10 +277,8 @@ const Home = () => {
                         <p className="text-gray-400 text-sm mb-4 md:mb-0">
                             © 2025 CareerBoard. All rights reserved.
                         </p>
-                        <div className="flex items-center space-x-6 text-sm">
-                            <span className="text-gray-400">Made with</span>
-                            <span className="text-red-400 animate-pulse">❤️</span>
-                            <span className="text-gray-400">for students & companies</span>
+                        <div className="flex items-center text-sm">
+                            <span className="text-gray-400">Made for students & companies</span>
                         </div>
                     </div>
                 </div>

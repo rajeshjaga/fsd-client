@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import API from '../../services/api';
 
 const ApplyJob = ({ student, job }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -87,8 +88,7 @@ const ApplyJob = ({ student, job }) => {
             }
 
             // Make API call to apply for the job
-            const response = await fetch(`http://localhost:5000/api/students/apply/${job._id}`, {
-                method: 'POST',
+            const response = await API.post(`/students/apply/${job._id}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`

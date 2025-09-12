@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API from "../services/api";
 
 const JobPost = () => {
     const [job, setJob] = useState({
@@ -39,9 +40,7 @@ const JobPost = () => {
     const handlePost = async () => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
         try {
-            console.log(token)
-            console.log(job)
-            await axios.post("http://localhost:5000/api/jobs", job, {
+            await API.post("/jobs", job, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

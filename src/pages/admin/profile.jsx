@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { User, Mail, Phone, MapPin, Shield, Settings, Camera, Save, Edit3, Key } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Mail, Phone, Camera, Save, Edit3 } from 'lucide-react';
 import { useAdmin } from "../../context/adminContext";
 import { useNavigate } from 'react-router-dom';
 
